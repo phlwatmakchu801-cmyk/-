@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>น้องส้ม สูตร 2 ตัว</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            /* ปรับพื้นหลังใหญ่ด้านนอกเป็นสีส้มพาสเทลตามคำขอแบบฉ่ำๆ */
+            background-color: #ffebd6; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 15px;
+        }
+
+        /* ตัวการ์ดแอปพลิเคชันตรงกลาง */
+        .app-container {
+            width: 100%;
+            max-width: 380px;
+            background: #ffffff; /* ปรับการ์ดเป็นสีขาวเพื่อให้ตัดกับพื้นหลังส้มอย่างลงตัว */
+            border-radius: 30px;
+            box-shadow: 0 12px 35px rgba(255, 102, 0, 0.15);
+            padding: 35px 25px;
+            text-align: center;
+            border: 2px solid #ffd1b3;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* โซนอีโมจิและต้นไม้ตกแต่งบริเวณขอบๆ แอป */
+        .decor-top-left { position: absolute; top: 15px; left: 20px; font-size: 20px; }
+        .decor-top-right { position: absolute; top: 15px; right: 20px; font-size: 20px; }
+        .decor-bottom-left { position: absolute; bottom: 15px; left: 20px; font-size: 18px; opacity: 0.7; }
+        .decor-bottom-right { position: absolute; bottom: 15px; right: 20px; font-size: 18px; opacity: 0.7; }
+
+        /* หัวข้อแอป */
+        .title {
+            font-size: 26px;
+            font-weight: bold;
+            color: #ff5500; 
+            margin-bottom: 5px;
+            margin-top: 10px;
+        }
+        .title span {
+            color: #2e7d32; /* แซมสีเขียวเหนี่ยวทรัพย์ */
+        }
+
+        /* คำอธิบาย */
+        .description-box {
+            font-size: 13px;
+            color: #ff6600;
+            margin-bottom: 25px;
+            background: #fff0e6;
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            font-weight: bold;
+        }
+
+        /* โซนช่องกรอก: จัดแบบคนละบรรทัด */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 16px; 
+            margin-bottom: 25px;
+            align-items: center;
+        }
+
+        .input-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 280px;
+        }
+
+        /* ช่องกรอกผลหวยแบบ "วงรียาว ๆ" (Capsule) */
+        .pill-input {
+            width: 100%;
+            padding: 14px 20px; 
+            border: 2px solid #ffb380;
+            border-radius: 30px; 
+            font-size: 18px;
+            font-weight: bold;
+            color: #ff5500;
+            background-color: #fffcf9;
+            outline: none;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+            text-align: center; 
+        }
+
+        /* เมื่อกดคลิกกรอกตัวเลข จะเปลี่ยนขอบเป็นสีเขียว */
+        .pill-input:focus {
+            border-color: #2e7d32;
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.15);
+        }
+
+        .pill-input::placeholder {
+            color: #ffa466;
+            font-weight: normal;
+            opacity: 0.7;
+        }
+
+        /* ซ่อนลูกศรในช่องกรอกตัวเลข */
+        .pill-input::-webkit-outer-spin-button,
+        .pill-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* ปุ่มเริ่มคำนวณทรงมนยาว */
+        .btn-calc {
+            background: #ff6600;
+            color: white;
+            border: none;
+            padding: 14px 0;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 85, 0, 0.25);
+            transition: all 0.2s;
+            width: 100%;
+            max-width: 280px;
+            margin-bottom: 25px;
+        }
+
+        .btn-calc:hover {
+            background: #2e7d32; 
+            box-shadow: 0 5px 15px rgba(46, 125, 50, 0.25);
+        }
+
+        /* ดีไซน์หน้าจอแสดงผลเลขดิบแบบกระดานดิจิทัลสีเขียว */
+        .raw-result-screen {
+            background-color: #f1f8e9;
+            border: 1px solid #c5e1a5;
+            padding: 10px;
+            border-radius: 15px;
+            font-size: 13px;
+            color: #33691e;
+            margin-bottom: 25px;
+            font-weight: bold;
+            word-break: break-all;
+            width: 100%;
+            max-width: 280px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* ส่วนแสดงผลลัพธ์ "เลขรูดคือ X , X" */
+        .result-box {
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 35px;
+        }
+
+        .result-title {
+            color: #ff5500;
+        }
+
+        /* ช่องแสดงผลเลขรูดทรง "วงกลมพอดีตัวเลข" */
+        .num-circle {
+            color: #2e7d32; 
+            background: #f1f8e9;
+            width: 50px;
+            height: 50px;
+            line-height: 46px; 
+            border-radius: 50%; 
+            font-size: 26px;
+            display: inline-block;
+            border: 2px solid #a5d6a7;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .orange-emoji {
+            font-size: 24px;
+            margin-left: 5px;
+        }
+
+        /* โซนยุบ/ขยายสูตรด้านล่าง */
+        .formula-section {
+            border-top: 1px dashed #ffd1b3;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+
+        .btn-toggle-formula {
+            background: #fff0e6;
+            color: #ff5500;
+            border: 1px solid #ffd1b3;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-toggle-formula:hover {
+            background: #ffea9f;
+        }
+
+        .formula-details-box {
+            font-size: 12px;
+            color: #e65100;
+            background: #fffaf5;
+            padding: 12px;
+            border-radius: 12px;
+            width: 100%;
+            border: 1px solid #ffd1b3;
+            text-align: left;
+            margin-top: 10px;
+        }
+
+        .formula-details-box ol {
+            margin-left: 18px;
+            margin-top: 3px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- เพิ่มต้นไม้และอีโมจิตกแต่งรอบๆ ขอบแอป -->
+        <div class="decor-top-left">🌳</div>
+        <div class="decor-top-right">🍊</div>
+        <div class="decor-bottom-left">🌿</div>
+        <div class="decor-bottom-right">🌳</div>
+
+        <!-- หัวข้อหลัก -->
+        <div class="title">น้องส้ม สูตร <span>2 ตัว</span></div>
+        
+        <!-- แถบคำอธิบาย -->
+        <div class="description-box">
+            ป้อนผลหวยงวดก่อนหน้าเพื่อคำนวณเลขเด่น
+        </div>
+
+        <!-- โซนช่องกรอกข้อมูล: วงรียาวแยกกันคนละบรรทัด -->
+        <div class="input-group">
+            <div class="input-wrapper">
+                <input type="number" id="topInput" class="pill-input" placeholder="กรอกเลขบน" oninput="clearScreen()">
+            </div>
+            <div class="input-wrapper">
+                <input type="number" id="bottomInput" class="pill-input" placeholder="กรอกเลขล่าง" oninput="clearScreen()">
+            </div>
+        </div>
+
+        <!-- ปุ่มเริ่มคำนวณ -->
+        <button class="btn-calc" onclick="calculate()">เริ่มคำนวณ</button>
+
+        <!-- จอจำลองผลลัพธ์เครื่องคิดเลขระบบปิด -->
+        <div class="raw-result-screen" id="rawOutput">
+            🟢 รอใส่ข้อมูลตัวเลข...
+        </div>
+
+        <!-- กล่องแสดงเลขรูดผลลัพธ์ (วงกลมพอดีเลข) -->
+        <div class="result-box">
+            <span class="result-title">เลขรูดคือ</span>
+            <span class="num-circle" id="x1">X</span>
+            <span>,</span>
+            <span class="num-circle" id="x2">X</span>
+            <span class="orange-emoji" id="emojiBox">🍊</span>
+        </div>
+
+        <!-- ข้อมูลสูตรอ้างอิงท้ายแอปพลิเคชัน -->
+        <div class="formula-section">
+            <button class="btn-toggle-formula" onclick="toggleFormula()">
+                👁️ <span id="toggleText">ซ่อนสูตรคำนวณ</span>
+            </button>
+
+            <div class="formula-details-box" id="formulaBox">
+                <strong>📋 วิธีคำนวณสูตรน้องส้ม:</strong>
+                <p style="margin-top: 2px;">สูตรหลัก: (ล่าง ÷ 18%) + บนแปลงทศนิยม</p>
+                <ol>
+                    <li>แปลงเลขบนให้เป็นทศนิยม (เช่น 833 ➡️ 8.33)</li>
+                    <li>นำเลขล่างมากดหารด้วย 18% บนระบบ</li>
+                    <li>ดึงเลขเด่นคร่อมทศนิยม <b>หน้าจุด 1 หลัก</b> และ <b>หลังจุด 1 หลัก</b></li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleFormula() {
+            let formulaBox = document.getElementById("formulaBox");
+            let toggleText = document.getElementById("toggleText");
+
+            if (formulaBox.style.display === "none") {
+                formulaBox.style.display = "block";
+                toggleText.innerText = "ซ่อนสูตรคำนวณ";
+            } else {
+                formulaBox.style.display = "none";
+                toggleText.innerText = "แสดงสูตรคำนวณ";
+            }
+        }
+
+        function clearScreen() {
+            document.getElementById("rawOutput").innerHTML = "🟢 รอใส่ข้อมูลตัวเลข...";
+            document.getElementById("x1").innerText = "X";
+            document.getElementById("x2").innerText = "X";
+            document.getElementById("emojiBox").innerText = "🍊";
+        }
+
+        function calculate() {
+            let topVal = document.getElementById("topInput").value;
+            let bottomVal = document.getElementById("bottomInput").value;
+
+            if (!topVal || !bottomVal) {
+                alert("กรุณากรอกตัวเลขบนและล่างให้ครบถ้วนก่อนนะคะ 🍊🌳");
+                return;
+            }
+
+            // ถอดตรรกะการทำงานตามแบบจำลองเครื่องคิดเลขจริง % อัตราส่วน 18%
+            let formattedTop = parseFloat(topVal) / 100; 
+            let rawResult = (parseFloat(bottomVal) / 0.18) + formattedTop; 
+
+            let resultString = rawResult.toString();
+
+            if (resultString.indexOf('.') === -1) {
+                resultString += ".0";
+            }
+
+            let dotIndex = resultString.indexOf('.');
+
+            // ดึงค่าผลลัพธ์ตำแหน่งเด่นคร่อมทศนิยม
+            let digit1 = resultString.charAt(dotIndex - 1); 
+            let digit2 = resultString.charAt(dotIndex + 1); 
+
+            // ป้อนข้อมูลเลขดิบลงในหน้าจอดิจิทัล
+            document.getElementById("rawOutput").innerHTML = "✅ ค่าเครื่องคิดเลข: " + resultString;
+
+            // แสดงตัวเลขเด่นในช่องวงกลมมงคล
+            document.getElementById("x1").innerText = digit1;
+            document.getElementById("x2").innerText = digit2;
+            
+            // เพิ่มความสดใสเมื่อคำนวณเสร็จสิ้น
+            document.getElementById("emojiBox").innerText = "🍊🌳✨";
+        }
+    </script>
+</body>
+</html>
